@@ -196,12 +196,13 @@ void delete_el_k1_k2_dialog(Table * table) {
             printf("Which key do you have?\n1) key1\n2) key2\n");
             x = 0;
             while (x < 1 || x > 2) {
-                printf("\n");
                 x = get_int();
             }
 
             printf("enter your key:\n");
             int k = get_int();
+            while (k < 0)
+                return;
 
             if (x == 1) {
                 printf("Would you like to delete every el with key or only one version?\n1) all\n2) version\n");
@@ -213,6 +214,10 @@ void delete_el_k1_k2_dialog(Table * table) {
                 KeyType1 key = (KeyType1){k};
                 if (x == 1) {
                     KeySpace1 * ks = getKey1(table->ks1, key, table->msize1);
+                    if (ks == NULL) {
+                        printf("there is no such key\n");
+                        return;
+                    }
                     int number = number_of_nodes1(ks->node);
                     int i = 0;
                     KeyType2 * keys = malloc(sizeof(KeyType2) * number);
@@ -237,8 +242,14 @@ void delete_el_k1_k2_dialog(Table * table) {
             } else if (x == 2) {
                 KeyType2 key = (KeyType2){k};
                 KeySpace2 * ks = getKey2(table, key);
+                if (ks == NULL) {
+                    printf("there is no such key\n");
+                    return;
+                }
                 int number = number_of_nodes2(ks->node);
                 int i = 0;
+                if (ks->busy == false)
+                    return;
                 KeyType1 * keys = malloc(sizeof(KeyType1) * number);
                 Node2 * node = ks->node;
                 while (node) {

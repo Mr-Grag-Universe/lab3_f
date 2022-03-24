@@ -135,8 +135,10 @@ void find_el_k1_k2_dialog(Table * table) {
                 ///find every element with key1
                 if (x == 1) {
                     Table * t = find_t1_k(table, key);
-                    print_table(*t);
-                    free_table(t);
+                    if (t) {
+                        print_table(*t);
+                        free_table(t);
+                    }
                     //find_items_k1(*table, key);
                 }
                 ///find 1 el with key1 and version
@@ -164,8 +166,10 @@ void find_el_k1_k2_dialog(Table * table) {
                 ///find every element with key2
                 if (x == 1) {
                     Table * t = find_t2_k(table, key);
-                    print_table(*t);
-                    free_table(t);
+                    if (t) {
+                        print_table(*t);
+                        free_table(t);
+                    }
                     //find_items_k1(*table, key);
                 }
                 ///find 1 el with key1 and version
@@ -176,8 +180,10 @@ void find_el_k1_k2_dialog(Table * table) {
                         version = get_int();
 
                     Table * t = find_t2_k_v(table, key, version);
-                    print_table(*t);
-                    free_table(t);
+                    if (t) {
+                        print_table(*t);
+                        free_table(t);
+                    }
                 }
                 //KeyType2 key = (KeyType2){k};
                 //find_items_k2(*table, key);

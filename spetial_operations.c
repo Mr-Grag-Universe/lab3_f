@@ -24,6 +24,9 @@
 
 void delete_t1_k_v(Table * table, KeyType1 key, int version) {
     KeySpace1 * ks = getKey1(table->ks1, key, table->msize1);
+    if (ks == NULL)
+        return;
+
     if (ks->node == NULL || ks->node->release.numberOfRelease < version) {
         return;
     }
@@ -45,8 +48,6 @@ Item * copy_item(Item * item) {
     item1->info->data = str_copy(item->info->data); // лохо
     item1->key1.key = item->key1.key;
     item1->key2.key = item->key2.key;
-    //cope_key1(&(item->key1), item->key1);
-    //cope_key2(&(item->key2), item->key2);
 
     item1->ind1 = item->ind1;
     item1->ind2 = item->ind2;
@@ -60,9 +61,13 @@ Item * copy_item(Item * item) {
 Table * find_t1_k_v(Table * table, KeyType1 key, int version) {
     Table * table1 = create_table(1, 1);
     KeySpace1 * ks = getKey1(table->ks1, key, table->msize1);
+    if (ks == NULL)
+        return table1;
     if (ks == NULL || ks->node == NULL)
         return table1;
 
+    if (ks->busy == false)
+        return table1;
     Node1 * node = ks->node;
     while (node && node->release.numberOfRelease != version) {
         node = node->next;
@@ -83,7 +88,11 @@ Table * find_t1_k(Table * table, KeyType1 key) {
         return NULL;
     }
     Table * table1 = create_table(1, (ks->node->release.numberOfRelease+1));
+
+
     Node1 * node = ks->node;
+    if (ks->busy == false)
+        return table1;
     while (node) {
         Item * item = copy_item(node->info);
         add_el(table1, item);
@@ -101,10 +110,14 @@ Table * find_t1_k(Table * table, KeyType1 key) {
 Table * find_t2_k_v(Table * table, KeyType2 key, int version) {
     Table * table1 = create_table(1, 1);
     KeySpace2 * ks = getKey2(table, key);
+    if (ks == NULL)
+        return table1;
     if (ks == NULL || ks->node == NULL)
         return table1;
 
     Node2 * node = ks->node;
+    if (ks->busy == false)
+        return table1;
     while (node && node->release.numberOfRelease != version) {
         node = node->next;
     }
@@ -127,6 +140,8 @@ Table * find_t2_k(Table * table, KeyType2 key) {
     }
     Table * table1 = create_table((ks->node->release.numberOfRelease+1), 1);
     Node2 * node = ks->node;
+    if (ks->busy)
+        return table1;
     while (node) {
         Item * item = copy_item(node->info);
         add_el(table1, item);
@@ -176,7 +191,8 @@ void clear_table2(Table * table) {
     //KeyType1 * keys1;
     for (int i = 0; i < table->msize2; ++i) {
         KeySpace2 * ks = table->ks2+i;
-        if (k)
+        if (ks->busy == false)
+            return;
         while (ks) {
             if (ks->node == NULL) {
                 ks = ks->next;
