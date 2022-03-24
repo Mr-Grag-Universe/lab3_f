@@ -47,6 +47,7 @@ void print_table(const Table table) {
             }
         }
         printf("\n");
+        //getchar();
     }
     printf("The second table.\n");
     for (int i = 0; i < size2; ++i) {
@@ -64,5 +65,6 @@ void print_table(const Table table) {
             }
             ks = ks->next;
         }
+        //getchar();
     }
 }

@@ -21,7 +21,7 @@ char ** init_menu_points() {
     char ** menu_points = malloc(sizeof(char*) * (UNKNOWN_COMMAND));
     menu_points[EXIT] = "exit";
     menu_points[ADD_NEW_EL] = "add a new element";
-    menu_points[CLEAR_TABLE2] = "clear table";
+    menu_points[CLEAR_TABLE2] = "clear table 2";
     menu_points[DELETE_EL] = "delete an element";
     menu_points[FIND_EL] = "find an element";
     menu_points[PRINT_TABLE] = "print table";
@@ -97,12 +97,17 @@ Command get_command_code(char * command) {
     else return UNKNOWN_COMMAND;
 }
 
+Table * start_session() {
+    Table * table = create_table(2, 2);
+    return table;
+}
+
 int main() {
     bool finish = false;
     char ** menu = init_menu_points();
-    int msize1 = 10;
-    int msize2 = 10;
-    Table * table = create_table(msize1, msize2);
+    int msize1 = 3;
+    int msize2 = 3;
+    Table * table = start_session(); //create_table(msize1, msize2);
 
     while (!finish) {
         /// clrscr();

@@ -29,10 +29,12 @@ void free_item(Item * item) {
 void free_items(Table * T) {
     for (int i = 0; i < T->msize1; ++i) {
         KeySpace1 * ks = T->ks1 + i;
-        Node1 * node = ks->node;
-        while (node) {
-            free_item(node->info);
-            node = node->next;
+        if (ks->busy) {
+            Node1 * node = ks->node;
+            while (node) {
+                free_item(node->info);
+                node = node->next;
+            }
         }
     }
 }
@@ -51,16 +53,22 @@ void free_table(Table * T) {
 }
 
 void delete_node1(KeySpace1 * ks1, KeyType1 key1, KeyType2 key2) {
+    if (ks1->node == NULL) {
+        fprintf(stderr, "NULL prt in searching for node\n");
+        exit(333);
+    }
     Node1 * node = ks1->node;
     Node1 * pr_node = ks1->node;
-    while (node && node->info->key2.key != key2.key) {
+    while (node && keys2_eq(node->info->key2, key2) == false) {
         pr_node = node;
         node = node->next;
     }
+
     if (node == NULL) {
         fprintf(stderr, "NULL prt in searching for node\n");
         exit(333);
     }
+
     if (pr_node == node)
         ks1->node = ks1->node->next;
     else
@@ -98,23 +106,26 @@ void delete_ks2(Table * table, KeyType2 key) {
         pr = ks;
         ks = ks->next;
     }
+
     if (ks == table->ks2+ind) {
         if (ks->next == NULL) {
             ks->busy = false;
             ks->key.key = 0;
         }
         else {
+            KeySpace2 * tmp = ks->next;
             ks->key.key = ks->next->key.key;
             ks->node = ks->next->node;
             ks->next = ks->next->next;
             ks->busy = ks->next->busy;
-            free(ks->next);
+            free(tmp);
         }
     }
     else {
         if (ks) {
+            KeySpace2 * tmp = ks->next;
             free(pr->next);
-            pr->next = ks->next;
+            pr->next = tmp;
         }
         else {
             return;
@@ -137,9 +148,11 @@ void delete_el(Table * table, KeyType1 key1, KeyType2 key2) {
     KeySpace1 * ks1 = getKey1(table->ks1, key1, table->msize1);
     KeySpace2 * ks2 = getKey2(table, key2);
 
+    size_t n = (table->msize1-1) - ((size_t)ks1-(size_t)(table->ks1))/ sizeof(KeySpace1);
     delete_node1(ks1, key1, key2);
     if (ks1->node == NULL) {
-        memmove(ks1, ks1+1, ((size_t)(table->ks1+table->msize1-1) - (size_t)ks1));
+        memmove(ks1, ks1+1, sizeof(KeySpace1) * n); // ((size_t)(table->ks1+table->msize1-1) - (size_t)ks1));
+        table->ks1[table->msize1-1].busy = false;
     }
     delete_node2(ks2, key1, key2);
     if (ks2->node == NULL) {
@@ -148,6 +161,7 @@ void delete_el(Table * table, KeyType1 key1, KeyType2 key2) {
     //if (ks2->node == NULL) {
     //    ks2->busy = false;
     //}
+    //getchar();
     free_item(item);
 }
 

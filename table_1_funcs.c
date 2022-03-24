@@ -30,7 +30,8 @@ void free_node1(Node1 * node) {
 
 void free_table1(Table * table) {
     for (int i = 0; i < table->msize1; ++i) {
-        free_node1(table->ks1[i].node);
+        if (table->ks1[i].busy)
+            free_node1(table->ks1[i].node);
     }
     free(table->ks1);
 }
@@ -198,10 +199,19 @@ KeySpace1 * getKey1(KeySpace1 * KS, KeyType1 key, int size) {
     return NULL;
 }
 
-bool k1_in_table1(Table * table, KeyType1 key) {
+bool k1_in_table1(Table * table, KeyType1 key, KeyType2 key2) {
     int ind = binarySearch(table, key);
-    if (keys1_eq(key, table->ks1[ind].key))
-        return true;
+    if (table->msize1 <= ind || ind < 0)
+        return false;
+    if (keys1_eq(key, table->ks1[ind].key)) {
+        Node1 * n = table->ks1[ind].node;
+        while (n) {
+            if (keys2_eq(n->info->key2, key2))
+                return true;
+            n = n->next;
+        }
+        //return true;
+    }
     /*for (int i = 0; i < table->msize1; ++i) {
         if (table->ks1[i].busy) {
             if (keys1_eq(key, table->ks1[i].key))
@@ -212,7 +222,7 @@ bool k1_in_table1(Table * table, KeyType1 key) {
 }
 
 bool el_in_KS1(Table * table, KeyType1 key1, KeyType2 key2) {
-    if (k1_in_table1(table, key1) == false)
+    if (k1_in_table1(table, key1, key2) == false)
         return false;
     KeySpace1 * ks = get_KS1(table, key1);
     Node1 * node = ks->node;

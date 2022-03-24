@@ -96,6 +96,8 @@ Table * find_t1_k(Table * table, KeyType1 key) {
  * для второй
  */
 
+///return table with new table
+///with el with key2 and it's version
 Table * find_t2_k_v(Table * table, KeyType2 key, int version) {
     Table * table1 = create_table(1, 1);
     KeySpace2 * ks = getKey2(table, key);
@@ -116,6 +118,8 @@ Table * find_t2_k_v(Table * table, KeyType2 key, int version) {
     return table1;
 }
 
+///return a new table with els
+///which have the same keys2
 Table * find_t2_k(Table * table, KeyType2 key) {
     KeySpace2 * ks = getKey2(table, key);
     if (ks == NULL || ks->node == NULL) {
@@ -131,6 +135,7 @@ Table * find_t2_k(Table * table, KeyType2 key) {
     return table1;
 }
 
+///not use
 void delete_data_in_node2_sp(Table * table, Node2 * node) {
     while (node) {
         int ind1 = node->info->ind1;
@@ -171,6 +176,7 @@ void clear_table2(Table * table) {
     //KeyType1 * keys1;
     for (int i = 0; i < table->msize2; ++i) {
         KeySpace2 * ks = table->ks2+i;
+        if (k)
         while (ks) {
             if (ks->node == NULL) {
                 ks = ks->next;
@@ -199,4 +205,5 @@ void clear_table2(Table * table) {
             free(keys);
         }
     }
+    //getchar();
 }

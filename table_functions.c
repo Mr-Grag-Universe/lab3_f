@@ -60,13 +60,29 @@ enum TableCondition table_condition(Table * table) {
     return tc;
 }
 
+bool can_insert(Table * table, Item * item) {
+    if (table->ks1[table->msize1-1].busy) {
+        if (item->key1.key < table->ks1[0].key.key) {
+            return false;
+        }
+        if (item->key1.key > table->ks1[table->msize1-1].key.key) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void add_el(Table * table, Item * item) {
     //KeyType1 key1 = item->key1;
     //KeyType2 key2 = item->key2;
 
-    if (table_condition(table) == TABLE_IS_OVER) {
+    if (0 && table_condition(table) == TABLE_IS_OVER) {
         printf("This table is overflow\n");
         exit(TABLE_IS_OVERFLOW);
+    }
+    if (can_insert(table, item) == false) {
+        free_item(item);
+        return;
     }
 
     add_el_in_KS1(table, item);
@@ -84,28 +100,33 @@ void add_el(Table * table, Item * item) {
 
 bool el_k1_k2_in_table(Table * table, KeyType1 key1, KeyType2 key2) {
     bool x = k1_in_table1(table, key1);
-    bool y = k2_in_table2(table, key2);
-    return x && y;
+    //bool y = k2_in_table2(table, key2);
+    return x; // && y;
 }
 
 Item * create_item(Table * table, InfoType * info, KeyType1 key1, KeyType2 key2) {
-    Item * item = malloc(sizeof(Item));
-    item->info = info;
-    if (key1.key < 0 || key1.key > table->msize1) {
-        free_item(item);
-        printf("Unresolved key");
+    if (0 && (key1.key < 0 || key1.key > table->msize1)) {
+        // free_item(item);
+        printf("Unresolved key\n");
         return NULL;
     }
+    Item * item = malloc(sizeof(Item));
+    item->info = info;
     item->key1.key = key1.key;
     item->key2.key = key2.key;
+    item->ind1 = 0;
+    item->ind2 = hash_func(key2)%table->msize2;
 
-    if (el_k1_k2_in_table(table, item->key1, item->key2)) {
+    bool x = el_k1_k2_in_table(table, item->key1, item->key2);
+    bool n1 = k1_in_table1(table, key1);
+    bool n2 = k2_in_table2(table, key2);
+    bool y = can_insert(table, item);
+    if (x || y == false) {
+
         free(item);
         return NULL;
     }
 
-    item->ind1 = 0;
-    item->ind2 = hash_func(key2)%table->msize2;
     return item;
 }
 
@@ -128,6 +149,7 @@ void add_info_dialog(Table * table) {
     Item * item = create_item(table, info, key1, key2);    // на основе полученных данных формируем итем
 
     if (item == NULL) {
+        free(info->data);
         free(info);
         printf("this table is empty or your key is wrong\n");
         //exit(TABLE_IS_OVERFLOW);
