@@ -62,7 +62,7 @@ void free_table2(Table * table) {
 }
 
 int hash_func(KeyType2 key) {
-    return key.key % 100;
+    return abs(key.key % 100);
 }
 
 KeyType2 * cope_key2(KeyType2 key) {
@@ -103,7 +103,18 @@ void add_el_in_KS2(Table * table, Item * item) {
 
     int ind = create_ind2(*table, item->key2);
     KeySpace2 * ks = table->ks2 + ind;
-    KeySpace2 *ks_p = table->ks2 + ind;
+
+    if (ks->node == NULL) {
+        ks->key.key = item->key2.key;
+        ks->node = malloc(sizeof(Node2));
+        ks->node->info = item;
+        ks->node->next = NULL;
+        ks->node->release.numberOfRelease = 0;
+        ks->busy = true;
+        return;
+    }
+
+    KeySpace2 * ks_p = table->ks2 + ind;
     while (ks && keys2_eq(ks->key, item->key2) == false) {
         if (ks->busy == false)
             break;

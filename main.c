@@ -97,17 +97,17 @@ Command get_command_code(char * command) {
     else return UNKNOWN_COMMAND;
 }
 
-Table * start_session() {
-    Table * table = create_table(2, 2);
+Table * start_session(int m1, int m2) {
+    Table * table = create_table(m1, m2);
     return table;
 }
 
 int main() {
     bool finish = false;
     char ** menu = init_menu_points();
-    int msize1 = 3;
-    int msize2 = 3;
-    Table * table = start_session(); //create_table(msize1, msize2);
+    int msize1 = 10;
+    int msize2 = 10;
+    Table * table = start_session(msize1, msize2); //create_table(msize1, msize2);
 
     while (!finish) {
         /// clrscr();

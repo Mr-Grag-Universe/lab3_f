@@ -89,8 +89,10 @@ void delete_node2(KeySpace2 * ks2, KeyType1 key1, KeyType2 key2) {
         fprintf(stderr, "NULL prt in searching for node\n");
         exit(333);
     }
-    if (pr_node == node)
+    if (pr_node == node) {
         ks2->node = ks2->node->next;
+    }
+
     else
         pr_node->next = node->next;
     free(node);
@@ -117,7 +119,7 @@ void delete_ks2(Table * table, KeyType2 key) {
             ks->key.key = ks->next->key.key;
             ks->node = ks->next->node;
             ks->next = ks->next->next;
-            ks->busy = ks->next->busy;
+            ks->busy = tmp->busy;
             free(tmp);
         }
     }
@@ -153,6 +155,7 @@ void delete_el(Table * table, KeyType1 key1, KeyType2 key2) {
     if (ks1->node == NULL) {
         memmove(ks1, ks1+1, sizeof(KeySpace1) * n); // ((size_t)(table->ks1+table->msize1-1) - (size_t)ks1));
         table->ks1[table->msize1-1].busy = false;
+        table->ks1[table->msize1-1].node = NULL;
     }
     delete_node2(ks2, key1, key2);
     if (ks2->node == NULL) {
@@ -201,14 +204,12 @@ void delete_el_k1_k2_dialog(Table * table) {
 
             printf("enter your key:\n");
             int k = get_int();
-            while (k < 0)
-                return;
 
             if (x == 1) {
                 printf("Would you like to delete every el with key or only one version?\n1) all\n2) version\n");
                 x = 0;
                 while (x < 1 || x > 2) {
-                    printf("\n");
+                    //printf("\n");
                     x = get_int();
                 }
                 KeyType1 key = (KeyType1){k};
@@ -240,26 +241,67 @@ void delete_el_k1_k2_dialog(Table * table) {
                     delete_t1_k_v(table, key, version);
                 }
             } else if (x == 2) {
+                printf("Would you like to delete every el with key or only one version?\n1) all\n2) version\n");
+                x = 0;
+                while (x < 1 || x > 2) {
+                    //printf("\n");
+                    x = get_int();
+                }
                 KeyType2 key = (KeyType2){k};
                 KeySpace2 * ks = getKey2(table, key);
                 if (ks == NULL) {
                     printf("there is no such key\n");
                     return;
                 }
-                int number = number_of_nodes2(ks->node);
-                int i = 0;
-                if (ks->busy == false)
-                    return;
-                KeyType1 * keys = malloc(sizeof(KeyType1) * number);
-                Node2 * node = ks->node;
-                while (node) {
-                    keys[i].key = node->info->key1.key;
-                    i++;
-                    node = node->next;
+                if (x == 1) {
+                    int number = number_of_nodes2(ks->node);
+                    int i = 0;
+                    if (ks->busy == false)
+                        return;
+                    if (ks->node == NULL)
+                        return;
+                    KeyType1 * keys = malloc(sizeof(KeyType1) * number);
+                    Node2 * node = ks->node;
+                    while (node) {
+                        keys[i].key = node->info->key1.key;
+                        i++;
+                        node = node->next;
+                    }
+                    for (int j = 0; j < number; ++j)
+                        delete_el(table, keys[j], key);
+                    free(keys);
                 }
-                for (int j = 0; j < number; ++j)
-                    delete_el(table, keys[j], key);
-                free(keys);
+                else {
+                    int version = -1;
+                    printf("Enter your version\n");
+                    while (version < 0) {
+                        version = get_int();
+                    }
+
+                    Node2 * node = ks->node;
+                    Node2 * pr_n = ks->node;
+                    if (node == NULL)
+                        return;
+                    if (node->release.numberOfRelease < version) {
+                        printf("too big version\n");
+                        return;
+                    }
+                    KeyType1 key1 = (KeyType1) {0};
+                    while (node) {
+                        if (node->release.numberOfRelease == version) {
+                            key1.key = node->info->key1.key;
+                            break;
+                        }
+                        pr_n = node;
+                        node = node->next;
+                    }
+                    if (node == NULL) {
+                        printf("not found\n");
+                        return;
+                    }
+                    delete_el(table, key1, key);
+                }
+
             } else
                 return;
             break;

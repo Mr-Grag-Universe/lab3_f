@@ -140,7 +140,7 @@ Table * find_t2_k(Table * table, KeyType2 key) {
     }
     Table * table1 = create_table((ks->node->release.numberOfRelease+1), 1);
     Node2 * node = ks->node;
-    if (ks->busy)
+    if (ks->busy == false)
         return table1;
     while (node) {
         Item * item = copy_item(node->info);
@@ -192,7 +192,7 @@ void clear_table2(Table * table) {
     for (int i = 0; i < table->msize2; ++i) {
         KeySpace2 * ks = table->ks2+i;
         if (ks->busy == false)
-            return;
+            continue;
         while (ks) {
             if (ks->node == NULL) {
                 ks = ks->next;
