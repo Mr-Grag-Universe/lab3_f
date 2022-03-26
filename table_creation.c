@@ -1,14 +1,11 @@
 //
 // Created by Stephan on 20.03.2022.
 //
-#include "stdio.h"
 #include "stdlib.h"
-#include "stdbool.h"
 #include "string.h"
 #include "headers/table_structs.h"
 #include "headers/table_1_funcs.h"
 #include "headers/table_2_funcs.h"
-#include "table_1_funcs.h"
 #include "table_creation.h"
 
 KeySpace1 create_KS1(int i) {

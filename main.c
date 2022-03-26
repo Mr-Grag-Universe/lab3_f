@@ -12,9 +12,6 @@
 #include "table_functions.h"
 #include "tests.h"
 
-//typedef menu_funcs (void (*) (Table *));
-//typedef menu_funcs_arr (void (**) (Table *));
-
 void clrscr(){
     system("@cls||clear");
 }

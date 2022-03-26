@@ -101,7 +101,7 @@ bool add_el(Table * table, Item * item) {
 }
 
 bool el_k1_k2_in_table(Table * table, KeyType1 key1, KeyType2 key2) {
-    bool x = k1_in_table1(table, key1);
+    bool x = k1_in_table1(table, key1, key2);
     //bool y = k2_in_table2(table, key2);
     return x;
 }

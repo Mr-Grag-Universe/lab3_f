@@ -9,7 +9,7 @@ KeyType1 enter_key1();
 int create_ind1();
 void add_el_in_KS1(Table * table, Item * item);
 void free_table1(Table * table);
-bool k1_in_table1(Table * table, KeyType1 key);
+bool k1_in_table1(Table * table, KeyType1 key1, KeyType2 key2);
 KeySpace1 * get_KS1(Table table, KeyType1 key);
 bool keys1_eq(KeyType1 key1, KeyType1 key2);
 void cope_key1(KeyType1 * res, KeyType1 key);
