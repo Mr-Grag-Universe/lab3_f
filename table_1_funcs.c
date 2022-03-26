@@ -29,23 +29,23 @@ void free_node1(Node1 * node) {
 }
 
 void free_table1(Table * table) {
-    for (int i = 0; i < table->msize1; ++i) {
-        if (table->ks1[i].busy)
-            free_node1(table->ks1[i].node);
+    if (table == NULL)
+        return;
+    for (int i = 0; i < table->numberDiffKeysInT1; ++i) {
+        free_node1(table->ks1[i].node);
     }
     free(table->ks1);
 }
 
 KeyType1 enter_key1() {
-    ///srand(time(NULL));
     KeyType1 key;
-    printf("enter your key for the new element in the lookthrough table.\n");
-    key.key = get_int();
+    printf("enter your intKey for the new element in the lookthrough table.\n");
+    key.intKey = get_int();
     return key;
 }
 
 bool keys1_eq(KeyType1 key1, KeyType1 key2) {
-    if (key1.key == key2.key)
+    if (key1.intKey == key2.intKey)
         return true;
     return false;
 }
@@ -54,64 +54,49 @@ int comparator(const void * ks1, const void * ks2) {
     KeySpace1 * KS1 = (KeySpace1*) ks1;
     KeySpace1 * KS2 = (KeySpace1*) ks2;
 
-    if (KS1->key.key < KS2->key.key) {
+    if (KS1->key.intKey < KS2->key.intKey) {
         return 1;
     }
-    if (KS1->key.key > KS2->key.key) {
+    if (KS1->key.intKey > KS2->key.intKey) {
         return -1;
     }
     return 0;
 }
 
-int number_of_ks1_b(Table table) {
-    for (int i = 0; i < table.msize1; ++i) {
-        if (table.ks1[i].busy == false)
-            return i;
-    }
-    return table.msize1;
-}
-
 int binarySearch(Table * table, KeyType1 key) {
-    int left = 0, right = number_of_ks1_b(*table);
+    int left = 0, right = table->numberDiffKeysInT1;
     while (left != right) {
         int m = (left+right)/2;
         KeySpace1 * p = (table->ks1+m);
-        if (p->busy) {
-            KeySpace1 ks = (KeySpace1) {1, key, NULL};
-            if (comparator(&ks, p) < 0) {
-                left = m + 1;
-            }
-            else if (comparator(&key, p) == 0)
-                return m;
-            else
-                right = m;
+        KeySpace1 ks = (KeySpace1) {key, NULL};
+        if (comparator(&ks, p) < 0) {
+            left = m + 1;
         }
-        else right = m;
+        else if (comparator(&key, p) == 0)
+            return m;
+        else
+            right = m;
     }
     return left;
 }
 
 KeyType1 * cope_key1(KeyType1 key) {
     KeyType1 * res = malloc(sizeof(KeyType1));
-    *(res) = (KeyType1) {key.key};
+    *(res) = (KeyType1) {key.intKey};
     return res;
 }
 
 KeySpace1 * get_KS1(Table * table, KeyType1 key) {
-    if (table->ks1[0].busy == false) {
-        table->ks1->key.key = key.key;
+    if (table->numberDiffKeysInT1 == 0) {
+        table->ks1->key.intKey = key.intKey;
         return table->ks1;
     }
 
-    KeySpace1 * ks = &((KeySpace1) {true, key, NULL});
-    //getchar();
+    KeySpace1 * ks = &((KeySpace1) {key, NULL});
+
     size_t x = binarySearch(table, key);
-    if (table->ks1[x].busy) {
-        if (table->ks1[x].key.key == key.key)
-            return table->ks1+x;
-    }
-    //getchar();
-    KeySpace1 * ks1 = table->ks1 + x;//table.ks1, ks, sizeof(*ks), table.msize1.index, comparator);
+
+    KeySpace1 * ks1 = table->ks1 + x;
     if (table->ks1 + table->msize1-1 == ks1) {
         if (keys1_eq(ks1->key, ks->key)) {
             return ks1;
@@ -120,18 +105,16 @@ KeySpace1 * get_KS1(Table * table, KeyType1 key) {
             return NULL;
     }
 
-    int num = number_of_ks1_b(*table);
+    int num = table->numberDiffKeysInT1;
     memmove(table->ks1 + x+1, table->ks1 + x, sizeof(KeySpace1) * (num-x));
-    //print_table(*table);
-    table->ks1[x].key.key = key.key;
-    table->ks1[x].busy = true;
+    table->ks1[x].key.intKey = key.intKey;
     table->ks1[x].node = NULL;
 
     return ks1;
 }
 
 void add_el_in_KS1(Table * table, Item * item) {
-    //KeySpace1 * key = get_KS1(table, item->key1);
+    //KeySpace1 * intKey = get_KS1(table, item->key1);
     int ind = binarySearch(table, item->key1);
     if (ind >= table->msize1) {
         free_item(item);
@@ -140,20 +123,15 @@ void add_el_in_KS1(Table * table, Item * item) {
     }
 
     KeySpace1 * key = table->ks1+ ind;
-    //getKey1(table->ks1, item->key1, table->msize1);
-    //getchar();
-    //item->p1 = key;
-    //printf("%p: %p\n", key, key->node);
     if (key == NULL) {
-        fprintf(stderr, "\nImpossible key.\n");
+        fprintf(stderr, "\nImpossible intKey.\n");
         //exit(IMPOSSIBLE_KEY);
         return;
     }
 
     if (keys1_eq(key->key, item->key1)) {
-        key->busy = true;
+        //table->numberDiffKeysInT1++;
 
-        //Node1 * node = key->node;
         Node1 * node = malloc(sizeof(Node1));
         node->info = item;
         node->next = key->node;
@@ -164,6 +142,7 @@ void add_el_in_KS1(Table * table, Item * item) {
             node->release.numberOfRelease = 0;
     }
     else {
+        /*
         if (ind == table->msize1-1) {
             if (table->ks1[ind].busy) {
                 free_item(item);
@@ -171,12 +150,12 @@ void add_el_in_KS1(Table * table, Item * item) {
                 return;
             }
         }
-        int num = number_of_ks1_b(*table);
+         */
+        int num = table->numberDiffKeysInT1; //number_of_ks1_b(*table);
         memmove(table->ks1 + ind+1, table->ks1 + ind, sizeof(KeySpace1) * (num-ind));
-        //print_table(*table);
-        table->ks1[ind].key.key = item->key1.key;
+        table->ks1[ind].key.intKey = item->key1.intKey;
         table->ks1[ind].node = NULL;
-        key->busy = true;
+        //table->numberDiffKeysInT1++;
         Node1 * node = malloc(sizeof(Node1));
         node->info = item;
         node->next = key->node;
@@ -185,17 +164,16 @@ void add_el_in_KS1(Table * table, Item * item) {
             node->release.numberOfRelease = node->next->release.numberOfRelease+1;
         else
             node->release.numberOfRelease = 0;
+        table->numberDiffKeysInT1++;
     }
 }
 
-KeySpace1 * getKey1(KeySpace1 * KS, KeyType1 key, int size) {
-    for (int i = 0; i < size; ++i) {
-        if (KS[i].busy) {
-            if (keys1_eq(KS[i].key, key)) {
-                return KS+i;
-            }
-        }
-    }
+KeySpace1 * getKey1(Table * table, KeyType1 key1) {
+    int index = binarySearch(table, key1);
+    if (index >= table->msize1)
+        return NULL;
+    if (keys1_eq(table->ks1[index].key, key1))
+        return table->ks1 + index;
     return NULL;
 }
 
@@ -210,14 +188,7 @@ bool k1_in_table1(Table * table, KeyType1 key, KeyType2 key2) {
                 return true;
             n = n->next;
         }
-        //return true;
     }
-    /*for (int i = 0; i < table->msize1; ++i) {
-        if (table->ks1[i].busy) {
-            if (keys1_eq(key, table->ks1[i].key))
-                return true;
-        }
-    }*/
     return false;
 }
 

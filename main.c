@@ -6,9 +6,11 @@
 #include "KGetLine.h"
 #include "spetial_operations.h"
 #include "headers/commands.h"
+#include "time.h"
 #include "MyString.h"
 #include "headers/table_creation.h"
 #include "table_functions.h"
+#include "tests.h"
 
 //typedef menu_funcs (void (*) (Table *));
 //typedef menu_funcs_arr (void (**) (Table *));
@@ -103,11 +105,14 @@ Table * start_session(int m1, int m2) {
 }
 
 int main() {
+    srand(time(NULL));
     bool finish = false;
     char ** menu = init_menu_points();
     int msize1 = 10;
     int msize2 = 10;
     Table * table = start_session(msize1, msize2); //create_table(msize1, msize2);
+
+    TEST_ALL(table);
 
     while (!finish) {
         /// clrscr();

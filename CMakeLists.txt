@@ -9,4 +9,4 @@ add_executable(l3 main.c table_creation.c table_1_funcs.c table_2_funcs.c table_
         libs/MyString.c
         libs/KGetLine.c
         libs/FGetLine.c
-        print_table.c free_delete.c find.c)
+        print_table.c free_delete.c find.c tests.c headers/tests.h)

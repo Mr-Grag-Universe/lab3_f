@@ -16,26 +16,16 @@ struct KeyType1;
 struct KeyType2;
 struct RelType1;
 struct RelType2;
-struct IndexType1;
-struct IndexType2;
-struct PointerType1;
-struct PointerType2;
-
-
-typedef struct PointerType1 {
-} PointerType1;
-typedef struct PointerType2 {
-} PointerType2;
 
 typedef struct InfoType {
     char * data;
 } InfoType;
 
 typedef struct KeyType1 {
-    int key;
+    int intKey;
 } KeyType1;
 typedef struct KeyType2 {
-    int key;
+    int intKey;
 } KeyType2;
 
 typedef struct RelType1 {
@@ -46,11 +36,12 @@ typedef struct RelType2 {
 } RelType2;
 
 typedef struct KeySpace1 {
-    bool busy;
+    //bool busy;
     // ключ элемента
     KeyType1 key;
     // указатель на информацию
     struct Node1 *node;
+    int numberOfNodes;
 } KeySpace1;
 typedef struct KeySpace2 {
     bool busy;
@@ -61,6 +52,7 @@ typedef struct KeySpace2 {
     struct Node2 *node;
     // указатель на следующий элемент
     struct KeySpace2 *next;
+    int numberOfNodes;
 } KeySpace2;
 
 typedef struct Items {
@@ -125,6 +117,8 @@ typedef struct Table {
     int csize1;
     // количество элементов в области второго пространства ключей
     int csize2;
+
+    int numberDiffKeysInT1;
 } Table;
 
 #endif //QUEUE_TABLE_STRUCTS_H

@@ -11,19 +11,12 @@
 #include "KGetLine.h"
 #include "MyString.h"
 #include "headers/table_structs.h"
-#include "headers/table_1_funcs.h"
-#include "headers/table_2_funcs.h"
 #include "table_1_funcs.h"
 #include "table_creation.h"
 #include "table_functions.h"
-#include "MyString.h"
-
-/*
- * для первой
- */
 
 void delete_t1_k_v(Table * table, KeyType1 key, int version) {
-    KeySpace1 * ks = getKey1(table->ks1, key, table->msize1);
+    KeySpace1 * ks = getKey1(table, key);
     if (ks == NULL)
         return;
 
@@ -46,8 +39,8 @@ Item * copy_item(Item * item) {
     Item * item1 = malloc(sizeof(Item));
     item1->info = malloc(sizeof(InfoType));
     item1->info->data = str_copy(item->info->data); // лохо
-    item1->key1.key = item->key1.key;
-    item1->key2.key = item->key2.key;
+    item1->key1.intKey = item->key1.intKey;
+    item1->key2.intKey = item->key2.intKey;
 
     item1->ind1 = item->ind1;
     item1->ind2 = item->ind2;
@@ -60,14 +53,14 @@ Item * copy_item(Item * item) {
 
 Table * find_t1_k_v(Table * table, KeyType1 key, int version) {
     Table * table1 = create_table(1, 1);
-    KeySpace1 * ks = getKey1(table->ks1, key, table->msize1);
+    KeySpace1 * ks = getKey1(table, key);
     if (ks == NULL)
         return table1;
     if (ks == NULL || ks->node == NULL)
         return table1;
 
-    if (ks->busy == false)
-        return table1;
+    //if (ks->busy == false)
+    //    return table1;
     Node1 * node = ks->node;
     while (node && node->release.numberOfRelease != version) {
         node = node->next;
@@ -83,7 +76,7 @@ Table * find_t1_k_v(Table * table, KeyType1 key, int version) {
 }
 
 Table * find_t1_k(Table * table, KeyType1 key) {
-    KeySpace1 * ks = getKey1(table->ks1, key, table->msize1);
+    KeySpace1 * ks = getKey1(table, key);
     if (ks == NULL || ks->node == NULL) {
         return NULL;
     }
@@ -91,8 +84,8 @@ Table * find_t1_k(Table * table, KeyType1 key) {
 
 
     Node1 * node = ks->node;
-    if (ks->busy == false)
-        return table1;
+    //if (ks->busy == false)
+    //    return table1;
     while (node) {
         Item * item = copy_item(node->info);
         add_el(table1, item);
@@ -158,8 +151,8 @@ void delete_data_in_node2_sp(Table * table, Node2 * node) {
         KeySpace1 * ks = table->ks1+ind1;
         if (ks->node == NULL)
             return;
-        if (ks->busy == false)
-            return;
+        //if (ks->busy == false)
+        //    return;
 
         Node1 * x = ks->node;
         while (x && x->next != ptr) {
@@ -180,7 +173,7 @@ void delete_data_in_node2_sp(Table * table, Node2 * node) {
             node = node->next;
         }
         if (ks->node == NULL) {
-            ks->busy = false;
+            //ks->busy = false;
             memmove(table->ks1+ind1, table->ks1+ind1+1, sizeof(KeySpace1)*(table->msize1 - ind1-1));
         }
     }
@@ -199,24 +192,21 @@ void clear_table2(Table * table) {
                 continue;
             }
 
-            int n_o_k = ks->node->release.numberOfRelease;
-            KeyType1 * keys = malloc(sizeof(KeyType1) * n_o_k);
+            int numberOfKeys = ks->node->release.numberOfRelease;
+            KeyType1 * keys = malloc(sizeof(KeyType1) * numberOfKeys);
             Node2 * node = ks->node->next;
-            while (n_o_k && node) {
-                keys[n_o_k-1].key = node->info->key1.key;
-                n_o_k--;
+            while (numberOfKeys && node) {
+                keys[numberOfKeys - 1].intKey = node->info->key1.intKey;
+                numberOfKeys--;
                 node = node->next;
             }
-            n_o_k = ks->node->release.numberOfRelease;
+            numberOfKeys = ks->node->release.numberOfRelease;
             KeySpace2 * tmp = ks->next;
-            for (int j = 0; j < n_o_k; ++j) {
+            for (int j = 0; j < numberOfKeys; ++j) {
                 delete_el(table, keys[j], ks->key);
             }
+            ks->node->release.numberOfRelease = 0;
             ks = tmp;
-            //ks = ks->next;
-
-            // delete_data_in_node2_sp(table, ks->node->next);
-            //free_node2(ks->node->next);
 
             free(keys);
         }

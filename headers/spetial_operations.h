@@ -5,7 +5,11 @@
 #ifndef LAB3_SPETIAL_OPERATIONS_H
 #define LAB3_SPETIAL_OPERATIONS_H
 #include "table_structs.h"
+void delete_all_k1(Table * table, KeyType1 key1);
+void delete_all_k2(Table * table, KeyType2 key);
 void delete_t1_k_v(Table * table, KeyType1 key, int version);
+void delete_t2_k_v(Table * table, KeyType2 key, int version);
+
 Table * find_t1_k_v(Table * table, KeyType1 key, int version);
 Table * find_t2_k_v(Table * table, KeyType2 key, int version);
 Table * find_t2_k(Table * table, KeyType2 key);

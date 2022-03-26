@@ -5,8 +5,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "stdbool.h"
-#include "string.h"
-#include "time.h"
 #include "Errors.h"
 #include "KGetLine.h"
 #include "MyString.h"
@@ -27,10 +25,6 @@ void clear_table(Table * T) {
     T->csize2 = 0;
 }
 
-/*
- * функции для обнаружения элемента в таблице
- */
-
 enum TableCondition {
     TABLE_IS_OVER,
     THERE_IS_NO_FREE_KS,
@@ -39,8 +33,8 @@ enum TableCondition {
 
 enum TableCondition table_condition(Table * table) {
     enum TableCondition tc = TABLE_IS_OVER;
-    for (int i = 0; i < table->msize1; ++i) {
-        if (table->ks1[i].busy) {
+    for (int i = 0; i < table->numberDiffKeysInT1; ++i) {
+        //if (table->ks1[i].busy) {
             Node1 * node = table->ks1[i].node;
             int n = 0;
             while (node) {
@@ -54,78 +48,74 @@ enum TableCondition table_condition(Table * table) {
                 continue;
             }
         }
-        else
-            return THERE_IS_FREE_KS;
-    }
+        //else
+        //    return THERE_IS_FREE_KS;
+    //}
     return tc;
 }
 
-bool can_insert(Table * table, Item * item) {
-    if (table->ks1[table->msize1-1].busy) {
-        if (item->key1.key < table->ks1[0].key.key) {
+bool can_insert_in_t1(Table * table, KeyType1 key1, KeyType2 key2) {
+    /*if (table->numberDiffKeysInT1 == table->msize1) {
+
+        if (key1.intKey < table->ks1[0].intKey.intKey) {
             return false;
         }
-        if (item->key1.key > table->ks1[table->msize1-1].key.key) {
+        if (key1.intKey > table->ks1[table->msize1-1].intKey.intKey) {
             return false;
         }
+
+        int indexForInsert = binarySearch(table, key1);
+        if (indexForInsert > table->msize1)
+    }*/
+    int indexForInsert = binarySearch(table, key1);
+    if (indexForInsert >= table->msize1)
+        return false;
+
+    KeySpace1 ks = table->ks1[indexForInsert];
+    if (table->numberDiffKeysInT1 == table->msize1) {
+        if (keys1_eq(ks.key, key1)) {
+            //KeySpace2 * ks2 = getKey2(table, key2);
+            //bool thereIsFreeNode = (ks.node == NULL || ks2->node == NULL);
+            return true; //thereIsFreeNode;
+        }
+        return false;
     }
+
     return true;
 }
 
-void add_el(Table * table, Item * item) {
-    //KeyType1 key1 = item->key1;
-    //KeyType2 key2 = item->key2;
+bool add_el(Table * table, Item * item) {
+    KeyType1 key1 = item->key1;
+    KeyType2 key2 = item->key2;
+    InfoType * info = item->info;
 
-    if (0 && table_condition(table) == TABLE_IS_OVER) {
-        printf("This table is overflow\n");
-        exit(TABLE_IS_OVERFLOW);
-    }
-    if (can_insert(table, item) == false) {
+    if (can_insert_in_t1(table, key1, key2) == false || el_k1_k2_in_table(table, key1, key2)) {
         free_item(item);
-        return;
+        printf("Unresolved Key...");
+        return false;
     }
 
     add_el_in_KS1(table, item);
     add_el_in_KS2(table, item);
-    //print_table(*table);
+    return true;
 }
-
-/*
- * вспомогательные функции
- * создают диалог
- * считывают инфу
- * преобразуют инфу в итем
- * и передают в основную функцию добавления
- */
 
 bool el_k1_k2_in_table(Table * table, KeyType1 key1, KeyType2 key2) {
     bool x = k1_in_table1(table, key1);
     //bool y = k2_in_table2(table, key2);
-    return x; // && y;
+    return x;
 }
 
 Item * create_item(Table * table, InfoType * info, KeyType1 key1, KeyType2 key2) {
-    if (0 && (key1.key < 0 || key1.key > table->msize1)) {
-        // free_item(item);
-        printf("Unresolved key\n");
-        return NULL;
-    }
     Item * item = malloc(sizeof(Item));
-    item->info = info;
-    item->key1.key = key1.key;
-    item->key2.key = key2.key;
-    item->ind1 = 0;
-    item->ind2 = hash_func(key2)%table->msize2;
-
-    bool x = el_k1_k2_in_table(table, item->key1, item->key2);
-    bool n1 = k1_in_table1(table, key1);
-    bool n2 = k2_in_table2(table, key2);
-    bool y = can_insert(table, item);
-    if (x || y == false) {
-
-        free(item);
+    if (item == NULL) {
         return NULL;
     }
+    item->info = info;
+    item->key1.intKey = key1.intKey;
+    item->key2.intKey = key2.intKey;
+    item->ind1 = 0;
+    item->ind2 = hash_func(table, key2);
 
     return item;
 }
@@ -141,20 +131,26 @@ void add_info_dialog(Table * table) {
     printf("enter your info.\n");
     InfoType * info = get_info();       // считываем введенную информацию
 
-    ///get_line();
-
     KeyType1 key1 = enter_key1();
     KeyType2 key2 = enter_key2();
+
+    if (can_insert_in_t1(table, key1, key2) == false || el_k1_k2_in_table(table, key1, key2)) {
+        free(info->data);
+        free(info);
+        printf("Unresolved intKey...");
+        return;
+    }
 
     Item * item = create_item(table, info, key1, key2);    // на основе полученных данных формируем итем
 
     if (item == NULL) {
         free(info->data);
         free(info);
-        printf("this table is empty or your key is wrong\n");
-        //exit(TABLE_IS_OVERFLOW);
+        printf("this table is empty or your intKey is wrong\n");
         return;
     }
     printf("item was created\n");
-    add_el(table, item);                // добавляем итем в таблицу
+    // добавляем итем в таблицу
+    if (add_el(table, item) == false)
+        printf("something came wrong");
 }

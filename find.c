@@ -45,7 +45,7 @@ Item * find_item(Table table, KeyType1 key1, KeyType2 key2) {
     /*
     for (int i = 0; i < table.msize1; ++i) {
         if (table.ks1[i].busy) {
-            if (table.ks1[i].key.key == key1.key) {
+            if (table.ks1[i].intKey.intKey == key1.intKey) {
                 Node1 * node = table.ks1[i].node;
                 while (node) {
                     if (keys2_eq(node->info->key2, key2)) {
@@ -64,7 +64,7 @@ Item * find_item(Table table, KeyType1 key1, KeyType2 key2) {
 }
 
 void find_items_k1(Table table, KeyType1 key) {
-    KeySpace1 * ks = getKey1(table.ks1, key, table.msize1);
+    KeySpace1 * ks = getKey1(&table, key);
     if (ks) {
         Node1 * node = ks->node;
         while (node) {
@@ -73,7 +73,7 @@ void find_items_k1(Table table, KeyType1 key) {
         }
         return;
     }
-    printf("There is not items with such key.\n");
+    printf("There is not items with such Key.\n");
 }
 void find_items_k2(Table table, KeyType2 key) {
     KeySpace2 * ks = getKey2(&table, key);
@@ -85,17 +85,17 @@ void find_items_k2(Table table, KeyType2 key) {
         }
         return;
     }
-    printf("There is not items with such key.\n");
+    printf("There is not items with such intKey.\n");
 }
 
 void find_el_k1_k2_dialog(Table * table) {
-    printf("What are you searching for?\n1) El with 2 keys\n2) Els with 1 key\n");
-    int x = -1;
-    while (x < 1 || x > 2) {
-        x = get_int();
+    printf("What are you searching for?\n1) El with 2 keys\n2) Els with 1 intKey\n");
+    int chose_2_or_1_key = -1;
+    while (chose_2_or_1_key < 1 || chose_2_or_1_key > 2) {
+        chose_2_or_1_key = get_int();
     }
 
-    switch (x) {
+    switch (chose_2_or_1_key) {
         ///normal 2 keys searching
         case 1: {
             printf("enter your keys:\n");
@@ -112,37 +112,37 @@ void find_el_k1_k2_dialog(Table * table) {
             print_item(*item);
             break;
         }
-        ///special search with 1 key
+        ///special search with 1 intKey
         case 2: {
-            printf("Which key do you have?\n1) key1\n2) key2\n");
-            x = 0;
-            while (x < 1 || x > 2) {
-                x = get_int();
+            printf("Which intKey do you have?\n1) key1\n2) key2\n");
+            int chose_key = 0;
+            while (chose_key < 1 || chose_key > 2) {
+                chose_key = get_int();
             }
-            printf("enter your key:\n");
+            printf("enter your intKey:\n");
             int k = get_int();
 
             ///with key1
-            if (x == 1) {
+            if (chose_key == 1) {
                 KeyType1 key = (KeyType1){k};
 
-                printf("Would you like to find every el with key or only one version?\n1) all\n2) version\n");
-                x = 0;
-                while (x < 1 || x > 2) {
-                    x = get_int();
+                printf("Would you like to find every el with intKey or only one version?\n1) all\n2) version\n");
+                int chose_all_or_version = 0;
+                while (chose_all_or_version < 1 || chose_all_or_version > 2) {
+                    chose_all_or_version = get_int();
                 }
 
                 ///find every element with key1
-                if (x == 1) {
+                if (chose_all_or_version == 1) {
                     Table * t = find_t1_k(table, key);
                     if (t) {
                         print_table(*t);
                         free_table(t);
                     }
-                    //find_items_k1(*table, key);
+                    //find_items_k1(*table, intKey);
                 }
                 ///find 1 el with key1 and version
-                else if (x == 2) {
+                else if (chose_all_or_version == 2) {
                     int version = -1;
                     printf("Enter your version\n");
                     while (version < 0)
@@ -154,26 +154,26 @@ void find_el_k1_k2_dialog(Table * table) {
                 }
             }
             ///with key2
-            else if (x == 2) {
+            else if (chose_key == 2) {
                 KeyType2 key = (KeyType2){k};
 
-                printf("Would you like to find every el with key or only one version?\n1) all\n2) version\n");
-                x = 0;
-                while (x < 1 || x > 2) {
-                    x = get_int();
+                printf("Would you like to find every el with intKey or only one version?\n1) all\n2) version\n");
+                int chose_all_or_version = 0;
+                while (chose_all_or_version < 1 || chose_all_or_version > 2) {
+                    chose_all_or_version = get_int();
                 }
 
                 ///find every element with key2
-                if (x == 1) {
+                if (chose_all_or_version == 1) {
                     Table * t = find_t2_k(table, key);
                     if (t) {
                         print_table(*t);
                         free_table(t);
                     }
-                    //find_items_k1(*table, key);
+                    //find_items_k1(*table, intKey);
                 }
                 ///find 1 el with key1 and version
-                else if (x == 2) {
+                else if (chose_all_or_version == 2) {
                     int version = -1;
                     printf("Enter your version\n");
                     while (version < 0)
@@ -185,8 +185,6 @@ void find_el_k1_k2_dialog(Table * table) {
                         free_table(t);
                     }
                 }
-                //KeyType2 key = (KeyType2){k};
-                //find_items_k2(*table, key);
             } else
                 return;
             break;

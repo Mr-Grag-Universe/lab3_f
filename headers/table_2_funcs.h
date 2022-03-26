@@ -6,8 +6,7 @@
 #define LAB3_TABLE_2_FUNCS_H
 KeySpace2 create_KS2(int i);
 void add_el_in_KS2(Table * table, Item * item);
-int hash_func(KeyType2 key);
-int create_ind2(Table table, KeyType2 key);
+int hash_func(Table * table, KeyType2 key);
 void free_table2(Table * table);
 bool k2_in_table2(Table * table, KeyType2 key);
 KeySpace2 * get_KS2(Table table, KeyType2 key);

@@ -18,10 +18,10 @@ void free_item(Item * item);
 bool el_k1_k2_in_table(Table * table, KeyType1 key1, KeyType2 key2);
 void find_el_k1_k2_dialog(Table * table);
 void delete_el_k1_k2_dialog(Table * table);
-KeySpace1 * getKey1(KeySpace1 * KS, KeyType1 key, int size);
+KeySpace1 * getKey1(Table * table, KeyType1 key1);
 KeySpace2 * getKey2(Table * table, KeyType2 key);
 void delete_el(Table * table, KeyType1 key1, KeyType2 key2);
-void add_el(Table * table, Item * item);
+bool add_el(Table * table, Item * item);
 Item * create_item(Table * table, InfoType * info, KeyType1 key1, KeyType2 key2);
 void free_node2(Node2 * node);
 #endif //LAB3_TABLE_FUNCTIONS_H

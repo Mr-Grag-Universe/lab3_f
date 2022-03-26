@@ -18,34 +18,38 @@
 #include "spetial_operations.h"
 
 void print_item(const Item item) {
-    printf("key1: %d; key2: %d\n", item.key1.key, item.key2.key);
+    printf("key1: %d; key2: %d\n", item.key1.intKey, item.key2.intKey);
     // printf("release: %d\n", item.);
     printf("data: %s\n", item.info->data);
 }
 
 void print_node1(Node1 node) {
-    printf("key1: %d, key2: %d\n", node.info->key1.key, node.info->key2.key);
+    if (node.info == NULL)
+        return;
+    printf("key1: %d, key2: %d\n", node.info->key1.intKey, node.info->key2.intKey);
     printf("data: %s\n", node.info->info->data);
 }
 void print_node2(Node2 node) {
-    printf("key1: %d, key2: %d\n", node.info->key1.key, node.info->key2.key);
+    if (node.info == NULL)
+        return;
+    printf("key1: %d, key2: %d\n", node.info->key1.intKey, node.info->key2.intKey);
     printf("data: %s\n", node.info->info->data);
 }
 
 void print_table(const Table table) {
-    int size1 = table.msize1;
+    int size1 = table.numberDiffKeysInT1;
     int size2 = table.msize2;
 
     printf("The first table.\n");
-    for (int i = 0; i < size1; ++i) {
-        printf("key: %d, busy: %d\n", table.ks1[i].key.key, table.ks1[i].busy);
-        if (table.ks1[i].busy) {
+    for (int i = 0; i < table.numberDiffKeysInT1; ++i) {
+        printf("Key: %d\n", table.ks1[i].key.intKey);
+        //if (table.ks1[i].busy) {
             Node1 * node = table.ks1[i].node;
             while (node) {
                 print_node1(*node);
                 node = node->next;
             }
-        }
+        //}
         printf("\n");
         //getchar();
     }
@@ -54,7 +58,7 @@ void print_table(const Table table) {
         printf("hash: %d\n", i);
         KeySpace2 * ks = table.ks2 + i;
         while (ks) {
-            //printf("key: %d; busy: %d\n", ks->key.key, ks->busy);
+            //printf("intKey: %d; busy: %d\n", ks->intKey.intKey, ks->busy);
             if (ks->busy) {
                 Node2 * node = ks->node;
                 while (node) {
