@@ -17,7 +17,7 @@
 KeySpace2 * getKey2(Table * table, KeyType2 key) {
     KeySpace2 * KS = table->ks2 + hash_func(table, key) % table->msize2;
     while (KS) {
-        if (KS->busy) {
+        if (KS->node) {
             if (keys2_eq(KS->key, key)) {
                 return KS;
             }
@@ -108,7 +108,6 @@ void add_el_in_KS2(Table * table, Item * item) {
         ks->node->info = item;
         ks->node->next = NULL;
         ks->node->release.numberOfRelease = 0;
-        ks->busy = true;
         return;
     }
 
@@ -123,9 +122,7 @@ void add_el_in_KS2(Table * table, Item * item) {
     if (ks == NULL) {
         ks_p->next = malloc(sizeof(KeySpace2));
         ks = ks_p;
-        ks->busy = true;
         ks = ks->next;
-        ks->busy = true;
         ks->next = NULL;
         ks->key.intKey = item->key2.intKey;
         ks->node = malloc(sizeof(Node2));
@@ -135,7 +132,6 @@ void add_el_in_KS2(Table * table, Item * item) {
     }
     else {
         Node2 * tmp = ks->node;
-        ks->busy = true;
         ks->key.intKey = item->key2.intKey;
         ks->node = malloc(sizeof(Node2));
         ks->node->next = tmp;
@@ -153,7 +149,7 @@ bool k2_in_table2(Table * table, KeyType2 key) {
     //for (int i = 0; i < table->msize2; ++i) {
         KeySpace2 * ks = table->ks2 + hash_func(table, key);
         while (ks) {
-            if (ks->busy) {
+            if (ks->node) {
                 if (keys2_eq(ks->key, key)) {
                     return true;
                 }

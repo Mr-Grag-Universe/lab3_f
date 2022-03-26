@@ -27,6 +27,7 @@ char ** init_menu_points() {
     menu_points[DELETE_EL] = "delete an element";
     menu_points[FIND_EL] = "find an element";
     menu_points[PRINT_TABLE] = "print table";
+    menu_points[DELETE_ALl] = "delete all";
     return menu_points;
 }
 
@@ -42,30 +43,37 @@ bool check_command(char * command) {
     return true;
 }
 
-bool execute_command(Table * table, Command command) {
+bool execute_command(Table ** table, Command command) {
     switch (command) {
         case EXIT: {
             printf("OK. Goodbye!\n");
             return true;
         }
         case ADD_NEW_EL: {
-            add_info_dialog(table);
+            add_info_dialog(*table);
             return false;
         }
         case FIND_EL: {
-            find_el_k1_k2_dialog(table);
+            find_el_k1_k2_dialog(*table);
             return false;
         }
         case DELETE_EL: {
-            delete_el_k1_k2_dialog(table);
+            delete_el_k1_k2_dialog(*table);
             return false;
         }
         case PRINT_TABLE: {
-            print_table(*table);
+            print_table(**table);
             return false;
         }
         case CLEAR_TABLE2: {
-            clear_table2(table);
+            clear_table2(*table);
+            return false;
+        }
+        case DELETE_ALl: {
+            int s1 = (*table)->msize1;
+            int s2 = (*table)->msize2;
+            free_table(*table);
+            *table = create_table(s1, s2);
             return false;
         }
         default: {
@@ -96,6 +104,8 @@ Command get_command_code(char * command) {
         return PRINT_TABLE;
     else if (!strcmp(command, "clear2"))
         return CLEAR_TABLE2;
+    else if (!strcmp(command, "delete all"))
+        return DELETE_ALl;
     else return UNKNOWN_COMMAND;
 }
 
@@ -133,7 +143,8 @@ int main() {
 
         Command command_code = get_command_code(command);
 
-        finish = execute_command(table, command_code);
+
+        finish = execute_command(&table, command_code);
 
         free(command);
     }

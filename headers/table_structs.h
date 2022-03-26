@@ -44,7 +44,7 @@ typedef struct KeySpace1 {
     int numberOfNodes;
 } KeySpace1;
 typedef struct KeySpace2 {
-    bool busy;
+    //bool busy;
     // ключ элемента
     // хэши от ключей - индекс в таблице
     KeyType2 key;

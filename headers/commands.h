@@ -13,7 +13,7 @@ typedef enum Commands {
     CLEAR_TABLE2,
     //CREATE_NEW_TABLE,
     //DELETE_TABLE,
-    //DELETE_ALl,
+    DELETE_ALl,
     UNKNOWN_COMMAND,
 } Command;
 #endif //LAB3_COMMANDS_H

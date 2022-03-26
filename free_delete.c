@@ -113,7 +113,7 @@ void delete_ks2(Table * table, KeyType2 key) {
 
     if (ks == table->ks2+ind) {
         if (ks->next == NULL) {
-            ks->busy = false;
+            ks->node = NULL;
             ks->key.intKey = 0;
         }
         else {
@@ -121,7 +121,6 @@ void delete_ks2(Table * table, KeyType2 key) {
             ks->key.intKey = ks->next->key.intKey;
             ks->node = ks->next->node;
             ks->next = ks->next->next;
-            ks->busy = tmp->busy;
             free(tmp);
         }
     }
@@ -202,7 +201,7 @@ void delete_all_k2(Table * table, KeyType2 key) {
     }
     int number = number_of_nodes2(ks->node);
     int i = 0;
-    if (ks->busy == false)
+    if (ks->node == NULL)
         return;
     if (ks->node == NULL)
         return;

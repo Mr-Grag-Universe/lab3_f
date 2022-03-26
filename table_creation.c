@@ -40,7 +40,7 @@ Table * create_table(int msize1, int msize2) {
     table->ks2 = malloc(sizeof(KeySpace2) * (msize2));
     for (int i = 0; i < msize2; ++i) {
         table->ks2[i] = create_KS2(i);
-        table->ks2[i].busy = false;
+        table->ks2[i].node = NULL;
     }
 
     return table;

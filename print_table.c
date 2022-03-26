@@ -59,7 +59,7 @@ void print_table(const Table table) {
         KeySpace2 * ks = table.ks2 + i;
         while (ks) {
             //printf("intKey: %d; busy: %d\n", ks->intKey.intKey, ks->busy);
-            if (ks->busy) {
+            if (ks->node) {
                 Node2 * node = ks->node;
                 while (node) {
                     print_node2(*node);
