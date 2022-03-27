@@ -25,7 +25,7 @@ void delete_t1_k_v(Table * table, KeyType1 key, int version) {
     }
 
     Node1 * node = ks->node;
-    version = node->release.numberOfRelease - version;
+    // version = node->release.numberOfRelease - version;
     while (node && node->release.numberOfRelease != version) {
         node = node->next;
     }
@@ -157,7 +157,7 @@ void delete_t2_k_v(Table * table, KeyType2 key, int version) {
         printf("too big version\n");
         return;
     }
-    version = node->release.numberOfRelease - version;
+    // version = node->release.numberOfRelease - version;
     KeyType1 key1 = (KeyType1) {0};
     while (node) {
         if (node->release.numberOfRelease == version) {

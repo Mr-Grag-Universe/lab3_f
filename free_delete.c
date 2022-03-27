@@ -43,14 +43,8 @@ void free_items(Table * T) {
 
 void free_table(Table * T) {
     free_items(T);
-    //printf("free data");
-    //getchar();
     free_table1(T);
-    //printf("free table 1");
-    //getchar();
     free_table2(T);
-    //printf("free table 2");
-    //getchar();
     free(T);
 }
 
@@ -154,8 +148,7 @@ void delete_el(Table * table, KeyType1 key1, KeyType2 key2) {
     size_t n = (table->msize1-1) - ((size_t)ks1-(size_t)(table->ks1))/ sizeof(KeySpace1);
     delete_node1(ks1, key1, key2);
     if (ks1->node == NULL) {
-        memmove(ks1, ks1+1, sizeof(KeySpace1) * n); // ((size_t)(table->ks1+table->msize1-1) - (size_t)ks1));
-        //table->ks1[table->msize1-1].busy = false;
+        memmove(ks1, ks1+1, sizeof(KeySpace1) * n);
         table->ks1[table->msize1-1].node = NULL;
         table->numberDiffKeysInT1--;
     }
@@ -164,12 +157,6 @@ void delete_el(Table * table, KeyType1 key1, KeyType2 key2) {
         delete_ks2(table, key2);
     }
 
-    /*table->numberDiffKeysInT1 = 0;
-    for (int i = 0; i < table->msize1; ++i) {
-        if (table->ks1[i].node == NULL)
-            break;
-
-    }*/
     free_item(item);
 }
 

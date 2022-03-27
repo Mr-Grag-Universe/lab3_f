@@ -119,7 +119,7 @@ int main() {
     int msize2 = 10;
     Table * table = start_session(msize1, msize2); //create_table(msize1, msize2);
 
-    TEST_ALL(table);
+    //TEST_ALL(table);
 
     while (!finish) {
         /// clrscr();

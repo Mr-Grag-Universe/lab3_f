@@ -16,15 +16,6 @@
 #include "table_functions.h"
 #include "spetial_operations.h"
 
-void clear_table(Table * T) {
-    // clear_ks1(T->ks1);
-    // clear_ks2(T->ks2);
-    T->msize1 = 0;
-    T->msize2 = 0;
-    T->csize1 = 0;
-    T->csize2 = 0;
-}
-
 enum TableCondition {
     TABLE_IS_OVER,
     THERE_IS_NO_FREE_KS,
@@ -55,18 +46,6 @@ enum TableCondition table_condition(Table * table) {
 }
 
 bool can_insert_in_t1(Table * table, KeyType1 key1, KeyType2 key2) {
-    /*if (table->numberDiffKeysInT1 == table->msize1) {
-
-        if (key1.intKey < table->ks1[0].intKey.intKey) {
-            return false;
-        }
-        if (key1.intKey > table->ks1[table->msize1-1].intKey.intKey) {
-            return false;
-        }
-
-        int indexForInsert = binarySearch(table, key1);
-        if (indexForInsert > table->msize1)
-    }*/
     int indexForInsert = binarySearch(table, key1);
     if (indexForInsert >= table->msize1)
         return false;
@@ -101,9 +80,18 @@ bool add_el(Table * table, Item * item) {
 }
 
 bool el_k1_k2_in_table(Table * table, KeyType1 key1, KeyType2 key2) {
-    bool x = k1_in_table1(table, key1, key2);
-    //bool y = k2_in_table2(table, key2);
-    return x;
+    int ind = binarySearch(table, key1);
+    if (table->msize1 <= ind || ind < 0)
+        return false;
+    if (keys1_eq(key1, table->ks1[ind].key)) {
+        Node1 * n = table->ks1[ind].node;
+        while (n) {
+            if (keys2_eq(n->info->key2, key2))
+                return true;
+            n = n->next;
+        }
+    }
+    return false;
 }
 
 Item * create_item(Table * table, InfoType * info, KeyType1 key1, KeyType2 key2) {
